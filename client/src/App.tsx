@@ -1,5 +1,8 @@
+// App.tsx
+
 import './App.css';
-import { Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+
 import {
   ApolloClient,
   InMemoryCache,
@@ -9,17 +12,25 @@ import {
 import { setContext } from '@apollo/client/link/context';
 
 import Navbar from './components/Navbar';
+import SignupForm from './components/SignupForm';
+import LoginForm from './components/LoginForm';
+import SearchBooks from './pages/SearchBooks';
+import SavedBooks from './pages/SavedBooks';
+import Auth from './utils/auth';
 
-// Construct our main GraphQL API endpoint
+// PrivateRoute component to protect certain routes
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  return Auth.loggedIn() ? children : <Navigate to="/login" />;
+};
+
+// Construct the main GraphQL API endpoint
 const httpLink = createHttpLink({
   uri: '/graphql',
 });
 
-// Construct request middleware that will attach the JWT token to every request as an `authorization` header
+// Construct middleware to attach JWT token to each request
 const authLink = setContext((_, { headers }) => {
-  // get the authentication token from local storage if it exists
   const token = localStorage.getItem('id_token');
-  // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
@@ -28,8 +39,8 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+// Set up Apollo Client
 const client = new ApolloClient({
-  // Set up our client to execute the `authLink` middleware prior to making the request to our GraphQL API
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
@@ -37,8 +48,28 @@ const client = new ApolloClient({
 function App() {
   return (
     <ApolloProvider client={client}>
-      <Navbar />
-      <Outlet />
+      <Router>
+        <Navbar />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<SearchBooks />} />
+          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/login" element={<LoginForm />} />
+
+          {/* Protected Route for Saved Books */}
+          <Route
+            path="/saved"
+            element={
+              <PrivateRoute>
+                <SavedBooks />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Catch-all Route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
     </ApolloProvider>
   );
 }

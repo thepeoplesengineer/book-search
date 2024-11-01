@@ -1,4 +1,4 @@
-// see SignupForm.js for comments
+// LoginForm.tsx
 
 import { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
@@ -9,7 +9,7 @@ import { LOGIN_USER } from '../utils/mutations';
 
 import Auth from '../utils/auth';
 
-const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
+const LoginForm = () => {  // Removed handleModalClose from here
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -44,12 +44,10 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
       });
 
       Auth.login(data.login.token);
-      handleModalClose(); // Close modal on successful login
     } catch (e) {
       console.error(e);
     }
 
-    // clear form values
     setUserFormData({
       email: '',
       password: '',
@@ -109,4 +107,3 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
 };
 
 export default LoginForm;
-

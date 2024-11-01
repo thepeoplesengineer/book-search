@@ -1,20 +1,21 @@
+// SignupForm.tsx
+
 import { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+
 import { useMutation } from '@apollo/client';
 import { ADD_USER } from '../utils/mutations';
+
 import Auth from '../utils/auth';
 
-const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
-  // set initial form state
+const SignupForm = () => {  // Removed handleModalClose from here
   const [userFormData, setUserFormData] = useState({
     username: '',
     email: '',
     password: '',
   });
-  // set state for form validation
   const [validated] = useState(false);
-  // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
   const [addUser, { error }] = useMutation(ADD_USER);
@@ -35,7 +36,6 @@ const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
@@ -48,7 +48,6 @@ const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
       });
 
       Auth.login(data.addUser.token);
-      handleModalClose(); // Close the modal after successful sign-up
     } catch (err) {
       console.error(err);
     }
@@ -62,9 +61,7 @@ const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
         <Alert
           dismissible
           onClose={() => setShowAlert(false)}
